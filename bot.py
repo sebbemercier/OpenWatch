@@ -1,22 +1,31 @@
 import discord
+from discord.ext import commands
 import os
+import logging
 from dotenv import load_dotenv
+
 load_dotenv()
 
+logging.basicConfig(level=logging.INFO)
+
 intents = discord.Intents.default()
-intents.message_content = True  # Required to read message content
+intents.message_content = True
 
-client = discord.Client(intents=intents)
+bot = commands.Bot(command_prefix='!', intents=intents)
 
-@client.event
+async def setup_hook():
+    import commands as bot_commands
+    await bot_commands.setup(bot)
+
+
+@bot.event
 async def on_ready():
-    print(f'We have logged in as {client.user}')
+    print(f'Connecté en tant que {bot.user}')
+    try:
+        synced = await bot.tree.sync()
+        print(f'{len(synced)} commande(s) synchronisée(s)')
+    except Exception as e:
+        print(f'Erreur de sync : {e}')
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-    if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
-
-client.run(os.getenv('TOKEN'))
+bot.setup_hook = setup_hook
+bot.run(os.getenv('TOKEN'))
