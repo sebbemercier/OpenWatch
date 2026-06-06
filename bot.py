@@ -13,10 +13,10 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-async def setup_hook():
-    import commands as bot_commands
-    await bot_commands.setup(bot)
 
+async def setup_hook():
+    from commands import index as command_index
+    await command_index.setup(bot)
 
 @bot.event
 async def on_ready():
